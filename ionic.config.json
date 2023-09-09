@@ -1,5 +1,5 @@
 {
-  "name": "BluetoothMaster-App",
+  "name": "Bluetooth Master",
   "integrations": {
     "capacitor": {}
   },
