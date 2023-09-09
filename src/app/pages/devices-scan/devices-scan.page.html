@@ -1,0 +1,13 @@
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-list lines="none">
+    <ion-item (click)="OpenDevicePage(device)" *ngFor="let device of scannedDevices" [button]="true">
+      <ion-label>
+        <b>{{device.Name}}</b>
+        <br>
+        <small>
+          {{device.MacAddress}}
+        </small>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
