@@ -1,0 +1,7 @@
+{
+  "name": "BluetoothMaster-App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
