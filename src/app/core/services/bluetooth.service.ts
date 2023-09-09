@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { BleClient, dataViewToText, textToDataView } from '@capacitor-community/bluetooth-le';
+import { BleClient, dataViewToText, hexStringToDataView, textToDataView } from '@capacitor-community/bluetooth-le';
 import { Platform } from '@ionic/angular';
 import { HostDeviceService } from './host-device.service';
 import { LoggingService } from '../classes/logging-service.class';
@@ -188,8 +188,8 @@ export class BluetoothService extends LoggingService {
         });
     }
 
-    public WriteToDevice(dev: IBluetoothDevice, service: string, characteristic: string, data: string) {
-        return BleClient.write(dev.MacAddress, service, characteristic, textToDataView(data));
+    public WriteHexToDevice(dev: IBluetoothDevice, service: string, characteristic: string, data: string) {
+        return BleClient.write(dev.MacAddress, service, characteristic, hexStringToDataView(data));
     }
 }
 
@@ -201,7 +201,7 @@ export enum BluetoothPlugin {
 export interface IBluetoothDevice {
     MacAddress: string;
     Name: string;
-    Plugin: BluetoothPlugin;
+    Plugin?: BluetoothPlugin;
 };
 
 export interface IBluetoothCommunicationHandle {
