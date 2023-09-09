@@ -1,8 +1,8 @@
 {
   "name": "BluetoothMaster-App",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "version": "1.0.0",
+  "author": "Sebastian Elstadt",
+  "homepage": "https://elstadt.com/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -65,5 +65,5 @@
     "ts-node": "^8.3.0",
     "typescript": "~5.0.2"
   },
-  "description": "An Ionic project"
+  "description": "A multi-purpose bluetooth testing app"
 }
