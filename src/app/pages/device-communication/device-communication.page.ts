@@ -54,7 +54,7 @@ export class DeviceCommunicationPage {
           bytes: byteArray
         });
 
-        
+        this.DecodeIncomingPayload(byteArray);
       },
       onError: err => {
         console.error(err);
@@ -98,6 +98,30 @@ export class DeviceCommunicationPage {
     console.log(byteArray);
     // hexToAscii('F1003000000000000000000000000000C1F2')
     this.bluetoothService.WriteStringToDevice(this.bluetoothDevice!, '0000FFE0-0000-1000-8000-00805F9B34FB', '0000FFE1-0000-1000-8000-00805F9B34FB', hexToAscii(byteArrayToHexString(byteArray)));
+  }
+
+  private DecodeIncomingPayload(bytes: Uint8Array) {
+    function ba255(b: number) {
+      return b & 0xFF;
+    }
+
+    const a2: number = ba255(bytes[1]);
+    const z = ba255(bytes[2]) & 0x01;
+    const a3 = ba255(bytes[3]);
+    let weight = ba255(bytes[7]) + (ba255(bytes[6]) * 256) + (65536 * ba255(bytes[5])) + (ba255(bytes[4]) & 16777216);
+    console.log(structuredClone({
+      a2, z, a3, weight
+    }));
+
+    if (z === 1) {
+      weight *= -1;
+    }
+
+    for (let i = 0; i < a2; i++) {
+      weight /= 10.0;
+    }
+
+    console.log('final weight', weight);
   }
 
   public ionViewWillLeave() {
