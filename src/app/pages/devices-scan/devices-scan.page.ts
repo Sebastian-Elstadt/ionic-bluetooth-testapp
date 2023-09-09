@@ -12,13 +12,7 @@ import { BluetoothService, IBluetoothDevice } from 'src/app/core/services/blueto
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class DevicesScanPage {
-  public scannedDevices: IBluetoothDevice[] = [
-    {
-      Name: 'Test',
-      MacAddress: '12:12:34',
-      Plugin: 1
-    }
-  ];
+  public scannedDevices: IBluetoothDevice[] = [];
 
   constructor(
     private bluetoothService: BluetoothService,
@@ -26,8 +20,14 @@ export class DevicesScanPage {
   ) { }
 
   public ionViewWillEnter() {
-    this.bluetoothService.StartScan()?.subscribe(d => {
-      this.scannedDevices.push(d);
+    this.bluetoothService.StartScan()?.subscribe({
+      next: d => {
+        console.log('GOT DEVICE', d);
+        this.scannedDevices.push(d);
+      },
+      error: err => {
+        console.error(err);
+      }
     });
   }
 

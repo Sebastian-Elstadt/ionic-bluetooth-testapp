@@ -191,6 +191,10 @@ export class BluetoothService extends LoggingService {
     public WriteHexToDevice(dev: IBluetoothDevice, service: string, characteristic: string, data: string) {
         return BleClient.write(dev.MacAddress, service, characteristic, hexStringToDataView(data));
     }
+
+    public WriteStringToDevice(dev: IBluetoothDevice, service: string, characteristic: string, data: string) {
+        return BleClient.write(dev.MacAddress, service, characteristic, textToDataView(data));
+    }
 }
 
 export enum BluetoothPlugin {
