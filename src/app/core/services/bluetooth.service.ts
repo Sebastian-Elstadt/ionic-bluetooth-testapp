@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { BleClient, dataViewToText, hexStringToDataView, textToDataView } from '@capacitor-community/bluetooth-le';
+import { BleClient, dataViewToHexString, dataViewToNumbers, dataViewToText, hexStringToDataView, textToDataView } from '@capacitor-community/bluetooth-le';
 import { Platform } from '@ionic/angular';
 import { HostDeviceService } from './host-device.service';
 import { LoggingService } from '../classes/logging-service.class';
@@ -150,14 +150,19 @@ export class BluetoothService extends LoggingService {
         device: IBluetoothDevice;
         service: string;
         characteristic: string;
-        onDataReceived: (data: string) => void | PromiseLike<void>;
+        onDataReceived: (data: string | number[]) => void | PromiseLike<void>;
         onError: (error: any) => void | PromiseLike<void>;
+        readAs: 'hex' | 'string' | 'numbers'
     }) {
         return new Promise<IBluetoothCommunicationHandle>(async (resolve, reject) => {
-            const subject = new Subject<string>();
+            const subject = new Subject<string | number[]>();
 
             try {
-                await BleClient.startNotifications(options.device.MacAddress, options.service, options.characteristic, res => subject.next(dataViewToText(res)));
+                await BleClient.startNotifications(options.device.MacAddress, options.service, options.characteristic, res => {
+                    if (options.readAs === 'string') subject.next(dataViewToText(res));
+                    else if (options.readAs === 'hex') subject.next(dataViewToHexString(res));
+                    else if (options.readAs === 'numbers') subject.next(dataViewToNumbers(res));
+                });
                 this.LogInfo('started comms with', options.device);
 
                 const subscription = subject.subscribe({

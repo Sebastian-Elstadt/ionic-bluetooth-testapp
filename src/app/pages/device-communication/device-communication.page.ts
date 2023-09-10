@@ -47,14 +47,27 @@ export class DeviceCommunicationPage {
       device: this.bluetoothDevice!,
       service: '0000FFE0-0000-1000-8000-00805F9B34FB',
       characteristic: '0000FFE1-0000-1000-8000-00805F9B34FB',
+      readAs: 'numbers',
       onDataReceived: data => {
-        const byteArray = new TextEncoder().encode(data);
+        const bytes = data as number[];
         console.log('GOT DATA!!!!!', {
-          data,
-          bytes: byteArray
+          bytes,
+          data
         });
 
-        this.DecodeIncomingPayload(byteArray);
+        this.DecodeIncomingPayload(bytes);
+
+        // const stringData = (data as string).replace(/\s/g, '');
+        // const byteArray: number[] = [];
+        // for (let c = 0; c < stringData.length; c += 2) { byteArray.push(parseInt(stringData.substring(c, c + 2), 16)); }
+
+        // console.log('GOT DATA!!!!!', {
+        //   stringData,
+        //   data,
+        //   bytes: byteArray
+        // });
+
+        // this.DecodeIncomingPayload(byteArray);
       },
       onError: err => {
         console.error(err);
@@ -65,7 +78,7 @@ export class DeviceCommunicationPage {
       let asciiString = '';
 
       for (let i = 0; i < hexString.length; i += 2) {
-        const hexPair = hexString.substr(i, 2);
+        const hexPair = hexString.substring(i, i + 2);
         const asciiChar = String.fromCharCode(parseInt(hexPair, 16));
         asciiString += asciiChar;
       }
@@ -100,28 +113,71 @@ export class DeviceCommunicationPage {
     this.bluetoothService.WriteStringToDevice(this.bluetoothDevice!, '0000FFE0-0000-1000-8000-00805F9B34FB', '0000FFE1-0000-1000-8000-00805F9B34FB', hexToAscii(byteArrayToHexString(byteArray)));
   }
 
-  private DecodeIncomingPayload(bytes: Uint8Array) {
-    function ba255(b: number) {
-      return b & 0xFF;
-    }
+  private DecodeIncomingPayload(bytes: number[]) {
+    // [241, 0, 48, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62, 242]
 
-    const a2: number = ba255(bytes[1]);
-    const z = ba255(bytes[2]) & 0x01;
-    const a3 = ba255(bytes[3]);
-    let weight = ba255(bytes[7]) + (ba255(bytes[6]) * 256) + (65536 * ba255(bytes[5])) + (ba255(bytes[4]) & 16777216);
-    console.log(structuredClone({
-      a2, z, a3, weight
-    }));
+    let weight = bytes[13] * 256 * 256 * 256 + 256 * 256 * bytes[14] + 256 * bytes[15] + bytes[16];
+    weight /= Math.pow(10, bytes[10]);
+    if (bytes[11] === 255) weight *= -1;
 
-    if (z === 1) {
-      weight *= -1;
-    }
+    console.log('decoded weight as', { weight });
 
-    for (let i = 0; i < a2; i++) {
-      weight /= 10.0;
-    }
 
-    console.log('final weight', weight);
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // const a2: number = ba255(bytes[1]);
+    // const z = ba255(bytes[2]) & 0x01;
+    // const a3 = ba255(bytes[3]);
+
+    // if (ba255(bytes[4]) != 255 || ba255(bytes[5]) != 255 || ba255(bytes[6]) != 255 || ba255(bytes[7]) != 255) {
+    //   let weight = ba255(bytes[7]) + (ba255(bytes[6]) * 256) + (65536 * ba255(bytes[5])) + (ba255(bytes[4]) * 16777216);
+    //   console.log(structuredClone({
+    //     a2, z, a3, weight
+    //   }));
+
+    //   if (z === 1) {
+    //     weight *= -1;
+    //   }
+
+    //   for (let i = 0; i < a2; i++) {
+    //     weight /= 10.0;
+    //   }
+
+    //   let unit = '';
+    //   switch (a3) {
+    //     case 0:
+    //       unit = 'kg';
+    //       break;
+    //     case 1:
+    //       unit = 'g';
+    //       break;
+    //     case 2:
+    //       unit = 'lb';
+    //       break;
+    //     default:
+    //       unit = 'unknown';
+    //       break;
+    //   }
+
+    //   console.log('final weight', { weight, unit });
+    // }
+    // else if ((ba255(bytes[2]) & 0x01) === 1) {
+    //   console.log('lower than -MAX-9e');
+    // }
+    // else {
+    //   console.log('over than MAX+9e');
+    // }
   }
 
   public ionViewWillLeave() {
